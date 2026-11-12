@@ -64,10 +64,21 @@ function evaluate(room) {
 function finish(room, winner) {
   room.phase = "ended";
   room.winner = winner;
-  // Reveal roles only after the game has ended.
-  io.to(room.code).emit("reveal", [...room.players.values()].map(p => ({
-    id: p.id, name: p.name, role: p.role, word: p.word, alive: p.alive
-  })));
+
+  // ส่งสถานะผู้ชนะล่าสุดก่อนเปิดเผยบทบาท
+  sendState(room);
+
+  io.to(room.code).emit("reveal", {
+    winner,
+    players: [...room.players.values()].map(p => ({
+      id: p.id,
+      name: p.name,
+      role: p.role,
+      word: p.word,
+      alive: p.alive
+    }))
+  });
+}
 }
 function tally(room) {
   const counts = new Map();
@@ -128,39 +139,23 @@ io.on("connection", socket => {
     socket.join(roomCode); socket.data.roomCode = roomCode;
     ack({ ok: true, code: roomCode }); sendState(room);
   });
+  socket.on("chatMessage", (raw, ack = () => {}) => {
+    const room = getRoom(socket);
+    if (!room) return ack({ error: "คุณยังไม่ได้เข้าห้อง" });
+
+    const player = room.players.get(socket.id);
+    const message = String(raw || "").trim().slice(0, 300);
+
+    if (!message) return ack({ error: "กรุณาพิมพ์ข้อความ" });
+
+    io.to(room.code).emit("chatMessage", {
+      name: player.name,
+      message
+    });
+
+    ack({ ok: true });
+  });
   socket.on("startGame", ack => {
-    socket.on("chatMessage", (raw, ack = () => {}) => {
-  const room = getRoom(socket);
-  if (!room) return ack({ error: "คุณยังไม่ได้เข้าห้อง" });
-
-  const player = room.players.get(socket.id);
-  const message = String(raw || "").trim().slice(0, 300);
-
-  if (!message) return ack({ error: "กรุณาพิมพ์ข้อความ" });
-
-  io.to(room.code).emit("chatMessage", {
-    name: player.name,
-    message
-  });
-
-  ack({ ok: true });
-});
-    socket.on("chatMessage", (raw, ack = () => {}) => {
-  const room = getRoom(socket);
-  if (!room) return ack({ error: "คุณยังไม่ได้เข้าห้อง" });
-
-  const player = room.players.get(socket.id);
-  const message = String(raw || "").trim().slice(0, 300);
-
-  if (!message) return ack({ error: "กรุณาพิมพ์ข้อความ" });
-
-  io.to(room.code).emit("chatMessage", {
-    name: player.name,
-    message
-  });
-
-  ack({ ok: true });
-});
     const room = getRoom(socket);
     if (!room) return;
     if (socket.id !== room.hostId) return ack?.({ error: "เฉพาะเจ้าของห้องเริ่มเกมได้" });
