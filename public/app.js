@@ -14,7 +14,6 @@ $("copyCode").onclick = async () => {
   try { await navigator.clipboard.writeText(myRoom); notice("คัดลอกรหัสห้องแล้ว"); }
   catch { notice("รหัสห้อง: " + myRoom); }
 };
-$("startGame").onclick = () => ackAction("startGame");
 $("voteStart").onclick = () => ackAction("startVoting");
 $("againBtn").onclick = () => ackAction("playAgain");
 socket.on("connect_error", () => notice("เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองรีเฟรชหน้าเว็บ"));
