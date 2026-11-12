@@ -264,3 +264,132 @@ footer {
     gap: 6px;
   }
 }
+
+/* ===== FLOATING CHAT WIDGET ===== */
+
+.chat-widget {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.chat-toggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 19px;
+  color: white;
+  background: linear-gradient(110deg, #9333ea, #6d28d9);
+  border: 1px solid #c084fc;
+  border-radius: 30px;
+  box-shadow: 0 0 25px #9333ea66;
+  font-size: 13px;
+}
+
+.chat-badge {
+  display: grid;
+  place-items: center;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  border-radius: 20px;
+  background: #ec4899;
+  color: white;
+  font-size: 10px;
+}
+
+.chat-panel {
+  width: 320px;
+  height: 400px;
+  max-height: min(400px, 65vh);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #131126;
+  border: 1px solid #8b5cf6;
+  border-radius: 16px;
+  box-shadow: 0 0 30px #9333ea44;
+}
+
+.chat-panel.hidden {
+  display: none !important;
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 13px 15px;
+  background: linear-gradient(110deg, #32145a, #17243d);
+  border-bottom: 1px solid #39315f;
+}
+
+.chat-header strong,
+.chat-header small {
+  display: block;
+}
+
+.chat-header strong {
+  font-size: 12px;
+  color: #e9d5ff;
+}
+
+.chat-header small {
+  margin-top: 3px;
+  font-size: 10px;
+  color: #a6a0bd;
+}
+
+.chat-header button {
+  padding: 5px 9px;
+  color: #ddd6fe;
+  background: #ffffff12;
+}
+
+.chat-panel .chat-messages {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: #0d0b20;
+}
+
+.chat-panel #chatForm {
+  padding: 10px;
+  gap: 7px;
+  border-top: 1px solid #39315f;
+}
+
+.chat-panel #chatForm input {
+  min-width: 0;
+  margin: 0;
+  padding: 10px;
+  font-size: 12px;
+}
+
+.chat-panel #chatForm button {
+  min-width: 55px;
+  margin: 0;
+  padding: 9px;
+  font-size: 12px;
+}
+
+@media (max-width: 600px) {
+  .chat-widget {
+    right: 12px;
+    bottom: 12px;
+  }
+
+  .chat-panel {
+    width: min(320px, calc(100vw - 24px));
+    height: 370px;
+  }
+}
