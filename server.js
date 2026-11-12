@@ -439,7 +439,7 @@ io.on("connection", socket => {
     ack({ ok: true });
   });
 
-  socket.on("startGame", ack => {
+  socket.on("startGame", (_data, ack = () => {}) => {
     const room = getRoom(socket);
 
     if (!room) {
