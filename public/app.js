@@ -13,6 +13,13 @@ let hasVoted = false;
 let timerInterval = null;
 let lastResult = null;
 
+let unreadMessages = 0;
+let chatIsOpen = false;
+
+
+// ==============================
+// SCREEN
+// ==============================
 
 function showScreen(screenId) {
   document.querySelectorAll(".screen").forEach(screen => {
@@ -24,20 +31,91 @@ function showScreen(screenId) {
 }
 
 
+// ==============================
+// CHAT WIDGET
+// ==============================
+
+function updateChatVisibility() {
+  const widget = $("chatWidget");
+
+  if (!widget) return;
+
+  widget.classList.toggle("hidden", !myRoom);
+}
+
+function setChatOpen(open) {
+  chatIsOpen = open;
+
+  $("chatPanel")?.classList.toggle("hidden", !open);
+  $("chatToggle")?.classList.toggle("hidden", open);
+
+  if (open) {
+    unreadMessages = 0;
+    updateChatBadge();
+
+    const messages = $("chatMessages");
+
+    if (messages) {
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    $("chatInput")?.focus();
+  }
+}
+
+function updateChatBadge() {
+  const badge = $("chatBadge");
+
+  if (!badge) return;
+
+  badge.textContent =
+    unreadMessages > 99 ? "99+" : unreadMessages;
+
+  badge.classList.toggle(
+    "hidden",
+    unreadMessages === 0
+  );
+}
+
+function resetChat() {
+  unreadMessages = 0;
+  updateChatBadge();
+
+  if ($("chatMessages")) {
+    $("chatMessages").innerHTML = "";
+  }
+}
+
+
+// ==============================
+// NOTICE & TOAST
+// ==============================
+
 function notice(message = "", elementId = "homeError") {
   const el = $(elementId);
-  if (el) el.textContent = message;
+
+  if (el) {
+    el.textContent = message;
+  }
 }
 
 function toast(message) {
   const el = $("toast");
+
   if (!el) return;
 
   el.textContent = message;
   el.classList.add("show");
 
-  setTimeout(() => el.classList.remove("show"), 2500);
+  setTimeout(() => {
+    el.classList.remove("show");
+  }, 2500);
 }
+
+
+// ==============================
+// SOCKET ACK
+// ==============================
 
 function ackAction(event, data, onSuccess) {
   socket.emit(event, data, result => {
@@ -46,37 +124,40 @@ function ackAction(event, data, onSuccess) {
       return;
     }
 
-    if (result?.ok && onSuccess) onSuccess(result);
+    if (result?.ok && onSuccess) {
+      onSuccess(result);
+    }
   });
 }
 
-function escapeHTML(value) {
-  return String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;"
-  })[char]);
-}
+
+// ==============================
+// PLAYERS
+// ==============================
 
 function renderPlayers(containerId, players, options = {}) {
   const container = $(containerId);
+
   if (!container) return;
 
   container.innerHTML = "";
 
   players.forEach(player => {
     const item = document.createElement("div");
+
     item.className = "player-item";
 
-    if (!player.alive) item.classList.add("player-dead");
+    if (!player.alive) {
+      item.classList.add("player-dead");
+    }
 
     const name = document.createElement("span");
+
     name.className = "player-name";
     name.textContent = player.name;
 
     const status = document.createElement("span");
+
     status.className = "player-status";
 
     if (!player.connected) {
@@ -93,6 +174,7 @@ function renderPlayers(containerId, players, options = {}) {
       const me = players.find(p => p.id === socket.id);
 
       const button = document.createElement("button");
+
       button.className = "btn btn-small";
       button.textContent = "โหวต";
 
@@ -107,13 +189,20 @@ function renderPlayers(containerId, players, options = {}) {
 
         button.disabled = true;
 
-        ackAction("vote", { targetId: player.id }, () => {
-          hasVoted = true;
-          updateVoteButtons();
-          if ($("voteStatus")) {
-            $("voteStatus").textContent = "คุณส่งคะแนนโหวตแล้ว";
+        ackAction(
+          "vote",
+          { targetId: player.id },
+          () => {
+            hasVoted = true;
+
+            updateVoteButtons();
+
+            if ($("voteStatus")) {
+              $("voteStatus").textContent =
+                "คุณส่งคะแนนโหวตแล้ว";
+            }
           }
-        });
+        );
       });
 
       item.appendChild(button);
@@ -124,10 +213,17 @@ function renderPlayers(containerId, players, options = {}) {
 }
 
 function updateVoteButtons() {
-  document.querySelectorAll("#votingPlayers button").forEach(button => {
-    button.disabled = true;
-  });
+  document
+    .querySelectorAll("#votingPlayers button")
+    .forEach(button => {
+      button.disabled = true;
+    });
 }
+
+
+// ==============================
+// DISCUSSION DURATION
+// ==============================
 
 function updateDurationSettings(state) {
   const settings = $("durationSettings");
@@ -140,6 +236,7 @@ function updateDurationSettings(state) {
   const inLobby = state.phase === "lobby";
 
   settings.classList.toggle("hidden", !inLobby);
+
   select.disabled = !host || !inLobby;
 
   select.value = String(
@@ -153,8 +250,17 @@ function updateDurationSettings(state) {
   }
 }
 
+
+// ==============================
+// TIMER
+// ==============================
+
 function formatTime(milliseconds) {
-  const seconds = Math.max(0, Math.ceil(milliseconds / 1000));
+  const seconds = Math.max(
+    0,
+    Math.ceil(milliseconds / 1000)
+  );
+
   const minutes = Math.floor(seconds / 60);
   const remainSeconds = seconds % 60;
 
@@ -167,6 +273,7 @@ function formatTime(milliseconds) {
 
 function updateDiscussionTimer() {
   const timer = $("discussionTimer");
+
   if (!timer || !latestState) return;
 
   if (
@@ -178,14 +285,21 @@ function updateDiscussionTimer() {
     return;
   }
 
-  const remaining = latestState.discussionEndsAt - Date.now();
+  const remaining =
+    latestState.discussionEndsAt - Date.now();
 
   timer.textContent = formatTime(remaining);
-  timer.classList.toggle("timer-ending", remaining <= 10000);
+
+  timer.classList.toggle(
+    "timer-ending",
+    remaining <= 10000
+  );
 }
 
 function startTimer() {
-  if (timerInterval) clearInterval(timerInterval);
+  if (timerInterval) {
+    clearInterval(timerInterval);
+  }
 
   updateDiscussionTimer();
 
@@ -194,11 +308,19 @@ function startTimer() {
   }, 250);
 }
 
+
+// ==============================
+// GAME STATE
+// ==============================
+
 function renderState(state) {
   latestState = state;
 
   const players = state.players || [];
-  const me = players.find(player => player.id === socket.id);
+
+  const me = players.find(
+    player => player.id === socket.id
+  );
 
   isHost = state.hostId === socket.id;
 
@@ -207,7 +329,8 @@ function renderState(state) {
   }
 
   if ($("playerCount")) {
-    $("playerCount").textContent = `${players.length}/12`;
+    $("playerCount").textContent =
+      `${players.length}/12`;
   }
 
   renderPlayers("lobbyPlayers", players);
@@ -217,12 +340,10 @@ function renderState(state) {
   if (state.phase === "lobby") {
     showScreen("lobbyScreen");
 
-    $("chatPanel")?.classList.remove("hidden");
-
-    $("startGame").disabled =
-      !isHost || players.length < 5;
-
     if ($("startGame")) {
+      $("startGame").disabled =
+        !isHost || players.length < 5;
+
       $("startGame").textContent = isHost
         ? "เริ่มเกม"
         : "รอเจ้าของห้องเริ่มเกม";
@@ -231,12 +352,15 @@ function renderState(state) {
     return;
   }
 
-  if (state.phase === "discussion" || state.phase === "voting") {
+  if (
+    state.phase === "discussion" ||
+    state.phase === "voting"
+  ) {
     showScreen("gameScreen");
-    $("chatPanel")?.classList.remove("hidden");
 
     if ($("roundNo")) {
-      $("roundNo").textContent = `ROUND ${state.round}`;
+      $("roundNo").textContent =
+        `ROUND ${state.round}`;
     }
 
     if ($("phaseLabel")) {
@@ -267,14 +391,20 @@ function renderState(state) {
     }
 
     if ($("voteStart")) {
-      $("voteStart").classList.toggle("hidden", !isHost);
+      $("voteStart").classList.toggle(
+        "hidden",
+        !isHost
+      );
     }
 
     if (state.phase === "discussion") {
       hasVoted = false;
+
       startTimer();
     } else {
-      if (timerInterval) clearInterval(timerInterval);
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
 
       if ($("discussionTimer")) {
         $("discussionTimer").textContent = "--:--";
@@ -288,19 +418,22 @@ function renderState(state) {
           : "กรุณาเลือกผู้เล่นที่ต้องการโหวต";
       }
 
-      renderPlayers("votingPlayers", players, {
-        voting: true
-      });
+      renderPlayers(
+        "votingPlayers",
+        players,
+        { voting: true }
+      );
     }
 
     return;
   }
 
   if (state.phase === "ended") {
-    if (timerInterval) clearInterval(timerInterval);
+    if (timerInterval) {
+      clearInterval(timerInterval);
+    }
 
     showScreen("gameScreen");
-    $("chatPanel")?.classList.remove("hidden");
 
     $("discussionSection")?.classList.add("hidden");
     $("votingSection")?.classList.add("hidden");
@@ -310,7 +443,11 @@ function renderState(state) {
   }
 }
 
+
+// ==============================
 // CREATE ROOM
+// ==============================
+
 $("createRoom")?.addEventListener("click", () => {
   const name = $("playerName").value.trim();
 
@@ -323,14 +460,21 @@ $("createRoom")?.addEventListener("click", () => {
 
   ackAction("createRoom", { name }, result => {
     myRoom = result.code;
+
     hasVoted = false;
     mySecret = null;
-    $("chatMessages").innerHTML = "";
+
+    resetChat();
+    setChatOpen(false);
+    updateChatVisibility();
   });
 });
 
+
+// ==============================
 // JOIN ROOM
-// JOIN ROOM
+// ==============================
+
 $("joinRoom")?.addEventListener("click", () => {
   const name = $("joinPlayerName").value.trim();
   const code = $("roomCode").value.trim();
@@ -349,41 +493,69 @@ $("joinRoom")?.addEventListener("click", () => {
 
   ackAction("joinRoom", { name, code }, result => {
     myRoom = result.code;
+
     hasVoted = false;
     mySecret = null;
-    $("chatMessages").innerHTML = "";
+
+    resetChat();
+    setChatOpen(false);
+    updateChatVisibility();
   });
 });
 
+
+// ==============================
 // COPY ROOM CODE
+// ==============================
+
 $("copyRoomCode")?.addEventListener("click", async () => {
-  const code = $("roomCodeDisplay").textContent;
+  const code = $("roomCodeDisplay")?.textContent || "";
 
   try {
     await navigator.clipboard.writeText(code);
+
     toast("คัดลอกรหัสห้องแล้ว");
   } catch {
     toast("ไม่สามารถคัดลอกรหัสได้");
   }
 });
 
-// SET DISCUSSION DURATION
-$("discussionDuration")?.addEventListener("change", event => {
-  const minutes = Number(event.target.value);
 
-  ackAction("setDiscussionDuration", minutes, () => {
-    toast(`ตั้งเวลาพูดคุย ${minutes} นาทีแล้ว`);
-  });
-});
+// ==============================
+// DISCUSSION DURATION
+// ==============================
 
+$("discussionDuration")?.addEventListener(
+  "change",
+  event => {
+    const minutes = Number(event.target.value);
+
+    ackAction(
+      "setDiscussionDuration",
+      minutes,
+      () => {
+        toast(`ตั้งเวลาพูดคุย ${minutes} นาทีแล้ว`);
+      }
+    );
+  }
+);
+
+
+// ==============================
 // START GAME
+// ==============================
+
 $("startGame")?.addEventListener("click", () => {
   ackAction("startGame", {}, () => {
     toast("เริ่มเกมแล้ว!");
   });
 });
 
+
+// ==============================
 // START VOTING
+// ==============================
+
 $("voteStart")?.addEventListener("click", () => {
   if (!isHost) return;
 
@@ -392,23 +564,34 @@ $("voteStart")?.addEventListener("click", () => {
   });
 });
 
+
+// ==============================
 // PLAY AGAIN
+// ==============================
+
 $("playAgain")?.addEventListener("click", () => {
   ackAction("playAgain", {}, () => {
     mySecret = null;
     hasVoted = false;
     lastResult = null;
-    $("chatMessages").innerHTML = "";
+
+    resetChat();
+
     toast("เริ่มเกมใหม่แล้ว");
   });
 });
 
+
+// ==============================
 // SECRET WORD
+// ==============================
+
 socket.on("secret", data => {
   mySecret = data;
 
   if ($("secretWord")) {
-    $("secretWord").textContent = data.word || "???";
+    $("secretWord").textContent =
+      data.word || "???";
   }
 
   if ($("secretHint")) {
@@ -419,16 +602,40 @@ socket.on("secret", data => {
   $("secretCard")?.classList.remove("hidden");
 });
 
+
+// ==============================
 // ROOM STATE
+// ==============================
+
 socket.on("state", state => {
   renderState(state);
 });
 
-// CHAT
+
+// ==============================
+// CHAT BUTTONS
+// ==============================
+
+$("chatToggle")?.addEventListener("click", () => {
+  setChatOpen(true);
+});
+
+$("chatClose")?.addEventListener("click", () => {
+  setChatOpen(false);
+});
+
+
+// ==============================
+// SEND CHAT MESSAGE
+// ==============================
+
 $("chatForm")?.addEventListener("submit", event => {
   event.preventDefault();
 
   const input = $("chatInput");
+
+  if (!input) return;
+
   const message = input.value.trim();
 
   if (!message) return;
@@ -438,30 +645,51 @@ $("chatForm")?.addEventListener("submit", event => {
       toast(result.error);
     } else {
       input.value = "";
+      input.focus();
     }
   });
 });
 
+
+// ==============================
+// RECEIVE CHAT MESSAGE
+// ==============================
+
 socket.on("chatMessage", data => {
   const container = $("chatMessages");
+
   if (!container) return;
 
   const message = document.createElement("div");
+
   message.className = "chat-message";
 
   const name = document.createElement("strong");
-  name.textContent = data.name + ": ";
+
+  name.textContent = (data.name || "ผู้เล่น") + ": ";
 
   const text = document.createElement("span");
-  text.textContent = data.message;
+
+  text.textContent = data.message || "";
 
   message.append(name, text);
+
   container.appendChild(message);
 
   container.scrollTop = container.scrollHeight;
+
+  if (!chatIsOpen) {
+    unreadMessages++;
+
+    updateChatBadge();
+  }
 });
 
+
+// ==============================
 // ROUND RESULT
+// ==============================
+
 socket.on("roundResult", result => {
   lastResult = result;
 
@@ -469,22 +697,35 @@ socket.on("roundResult", result => {
 
   if (result.tie) {
     $("resultTitle").textContent = "คะแนนเสมอ!";
+
     $("resultText").textContent =
       result.message || "ไม่มีใครถูกคัดออก";
   } else {
-    $("resultTitle").textContent = "มีผู้เล่นถูกคัดออก!";
+    $("resultTitle").textContent =
+      "มีผู้เล่นถูกคัดออก!";
+
     $("resultText").textContent =
       result.eliminated
         ? `${result.eliminated.name} ถูกคัดออกจากเกม`
         : "ไม่มีผู้เล่นถูกคัดออก";
   }
 
-  toast(result.tie ? "คะแนนเสมอ!" : "จบรอบการโหวต");
+  toast(
+    result.tie
+      ? "คะแนนเสมอ!"
+      : "จบรอบการโหวต"
+  );
 });
 
+
+// ==============================
 // GAME REVEAL
+// ==============================
+
 socket.on("reveal", data => {
-  if (timerInterval) clearInterval(timerInterval);
+  if (timerInterval) {
+    clearInterval(timerInterval);
+  }
 
   showScreen("gameScreen");
 
@@ -492,8 +733,6 @@ socket.on("reveal", data => {
   $("votingSection")?.classList.add("hidden");
   $("resultSection")?.classList.add("hidden");
   $("revealSection")?.classList.remove("hidden");
-
-  $("chatPanel")?.classList.remove("hidden");
 
   const winner = data.winner;
 
@@ -503,16 +742,22 @@ socket.on("reveal", data => {
       : "ฝ่าย Undercover ชนะ!";
 
   const container = $("revealPlayers");
+
+  if (!container) return;
+
   container.innerHTML = "";
 
   (data.players || []).forEach(player => {
     const item = document.createElement("div");
+
     item.className = "player-item";
 
     const name = document.createElement("span");
+
     name.textContent = player.name;
 
     const role = document.createElement("span");
+
     role.className = "player-status";
 
     const roleNames = {
@@ -526,11 +771,16 @@ socket.on("reveal", data => {
       (player.word ? ` — ${player.word}` : "");
 
     item.append(name, role);
+
     container.appendChild(item);
   });
 });
 
+
+// ==============================
 // RESET
+// ==============================
+
 socket.on("reset", () => {
   mySecret = null;
   hasVoted = false;
@@ -540,14 +790,16 @@ socket.on("reset", () => {
   $("resultSection")?.classList.add("hidden");
   $("revealSection")?.classList.add("hidden");
 
-  if ($("chatMessages")) {
-    $("chatMessages").innerHTML = "";
-  }
+  resetChat();
 
   toast("กลับสู่ห้องรอผู้เล่นแล้ว");
 });
 
+
+// ==============================
 // CONNECTION ERRORS
+// ==============================
+
 socket.on("connect_error", () => {
   toast("เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ กำลังลองใหม่...");
 });
