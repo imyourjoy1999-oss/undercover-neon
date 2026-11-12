@@ -515,7 +515,7 @@ socket.on("startVoting", (_data, ack = () => {}) => {
     }
   });
 
-  socket.on("playAgain", ack => {
+ socket.on("playAgain", (_data, ack = () => {}) => {
     const room = getRoom(socket);
 
     if (
