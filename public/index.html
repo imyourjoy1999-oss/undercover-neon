@@ -8,19 +8,21 @@
   <title>UNDERCOVER — Neon Party Game</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
 </head>
-
 <body>
-  <div class="app-shell">
 
-    <header class="topbar">
-      <div class="brand">
-        <span class="brand-mark">U</span>
-        <span>UNDERCOVER</span>
-      </div>
-      <div class="topbar-tag">NEON PARTY GAME</div>
+  <div class="glow glow-a"></div>
+  <div class="glow glow-b"></div>
+
+  <div class="shell">
+
+    <header>
+      <div class="logo-mark">U</div>
+      <div class="brand">UNDER<span>COVER</span></div>
+      <small>NEON PARTY GAME</small>
+      <div class="online"><i></i> ONLINE</div>
     </header>
 
     <main>
@@ -28,200 +30,166 @@
       <!-- HOME -->
       <section id="homeScreen" class="screen active">
         <div class="hero">
-          <div class="hero-kicker">TRUST NO ONE</div>
+          <div class="eyebrow">TRUST NO ONE</div>
           <h1>UNDER<span>COVER</span></h1>
           <p>ใครคือคนที่ไม่เหมือนพวกเรา?</p>
         </div>
 
-        <div class="panel home-panel">
-          <label for="playerName">ชื่อผู้เล่น</label>
-          <input id="playerName" maxlength="18" placeholder="ใส่ชื่อของคุณ">
+        <div class="home-grid">
 
-          <button id="createRoom" class="btn btn-primary">
-            สร้างห้องใหม่
-          </button>
-
-          <div class="or-divider">
-            <span>หรือเข้าร่วมห้อง</span>
+          <div class="panel">
+            <div class="panel-icon">✦</div>
+            <h2>สร้างห้องใหม่</h2>
+            <p>สร้างห้องแล้วชวนเพื่อนมาเล่นด้วยกัน</p>
+            <input id="playerName" maxlength="18" placeholder="ชื่อผู้เล่น">
+            <button id="createRoom" class="primary">สร้างห้องใหม่ <b>→</b></button>
           </div>
 
-          <label for="roomCode">รหัสห้อง</label>
-          <input id="roomCode" maxlength="6" inputmode="numeric" placeholder="กรอกรหัส 6 หลัก">
+          <div class="panel">
+            <div class="panel-icon">⌘</div>
+            <h2>เข้าร่วมห้อง</h2>
+            <p>มีรหัสห้องแล้ว? เข้ามาร่วมเกมได้เลย</p>
+            <input id="roomCode" maxlength="6" inputmode="numeric" placeholder="รหัสห้อง 6 หลัก">
+            <button id="joinRoom" class="secondary">เข้าร่วมห้อง <b>→</b></button>
+          </div>
 
-          <button id="joinRoom" class="btn btn-secondary">
-            เข้าร่วมห้อง
-          </button>
+        </div>
 
-          <p id="homeError" class="error-message"></p>
+        <p id="homeError" class="notice"></p>
+
+        <div class="features">
+          <span>✦ 5–12 PLAYERS</span>
+          <span>✦ SECRET ROLES</span>
+          <span>✦ ONLINE PARTY</span>
         </div>
       </section>
 
       <!-- LOBBY -->
-      <section id="lobbyScreen" class="screen">
+      <section id="lobbyScreen" class="screen hidden">
+        <div class="room">
 
-        <div class="screen-heading">
-          <div class="eyebrow">WAITING ROOM</div>
-          <h2>ห้องรอผู้เล่น</h2>
-        </div>
+          <div class="room-top">
+            <div>
+              <div class="eyebrow">WAITING ROOM</div>
+              <h2>ห้องรอผู้เล่น</h2>
+            </div>
+            <button id="copyRoomCode" class="copy">คัดลอกรหัส</button>
+          </div>
 
-        <div class="panel room-code-panel">
-          <span class="muted">รหัสห้องของคุณ</span>
-
-          <div class="room-code-row">
+          <div class="code-card">
+            <small>ROOM CODE</small>
             <strong id="roomCodeDisplay">------</strong>
-            <button id="copyRoomCode" class="btn btn-small">
-              คัดลอกรหัส
-            </button>
+            <span>ส่งรหัสนี้ให้เพื่อนเพื่อเข้าร่วมเกม</span>
           </div>
 
-          <p class="muted">ส่งรหัสนี้ให้เพื่อนเพื่อเข้าร่วมเกม</p>
-        </div>
-
-        <div class="panel">
-          <div class="section-title">
-            <h3>ผู้เล่น</h3>
-            <span id="playerCount">0/12</span>
+          <div class="panel room-info">
+            <h3>ผู้เล่น <span id="playerCount">0/12</span></h3>
+            <div id="lobbyPlayers" class="players"></div>
           </div>
 
-          <div id="lobbyPlayers" class="player-list"></div>
-        </div>
+          <div class="panel">
+            <div class="eyebrow">DISCUSSION SETTINGS</div>
+            <h3>⏱ เวลาพูดคุย</h3>
+            <p>เลือกเวลาพูดคุยก่อนเข้าสู่ช่วงโหวต</p>
 
-        <!-- DISCUSSION DURATION -->
-        <div class="panel" id="durationSettings">
-          <div class="section-title">
-            <h3>เวลาพูดคุย</h3>
+            <select id="discussionDuration">
+              <option value="2">2 นาที</option>
+              <option value="5">5 นาที</option>
+              <option value="7">7 นาที</option>
+              <option value="10">10 นาที</option>
+            </select>
+
+            <p id="durationHint" class="muted">เฉพาะเจ้าของห้องเท่านั้นที่เปลี่ยนเวลาได้</p>
           </div>
 
-          <p class="muted">
-            เลือกระยะเวลาพูดคุยก่อนเข้าสู่ช่วงโหวต
-          </p>
+          <button id="startGame" class="primary">เริ่มเกม →</button>
+          <p id="lobbyError" class="notice"></p>
 
-          <select id="discussionDuration">
-            <option value="2">2 นาที</option>
-            <option value="5">5 นาที</option>
-            <option value="7">7 นาที</option>
-            <option value="10">10 นาที</option>
-          </select>
-
-          <p id="durationHint" class="muted">
-            เฉพาะเจ้าของห้องเท่านั้นที่เปลี่ยนเวลาได้
-          </p>
         </div>
-
-        <button id="startGame" class="btn btn-primary">
-          เริ่มเกม
-        </button>
-
-        <p id="lobbyError" class="error-message"></p>
       </section>
 
       <!-- GAME -->
-      <section id="gameScreen" class="screen">
+      <section id="gameScreen" class="screen hidden">
+        <div class="room">
 
-        <div class="game-topline">
-          <span id="roundNo">ROUND 1</span>
-          <span id="phaseLabel">DISCUSSION</span>
-        </div>
-
-        <!-- SECRET WORD -->
-        <div id="secretCard" class="panel secret-card">
-          <div class="eyebrow">YOUR SECRET WORD</div>
-          <div id="secretWord" class="secret-word">••••••</div>
-          <p id="secretHint" class="muted">
-            จำคำของคุณไว้ให้ดี
-          </p>
-        </div>
-
-        <!-- DISCUSSION -->
-        <div id="discussionSection" class="panel">
-          <div class="eyebrow">DISCUSSION TIME</div>
-
-          <h2>พูดคุยกันได้เลย!</h2>
-
-          <div id="discussionTimer" class="discussion-clock">
-            02:00
+          <div class="room-top">
+            <div>
+              <div class="eyebrow" id="phaseLabel">DISCUSSION</div>
+              <h2 id="roundNo">ROUND 1</h2>
+            </div>
+            <div class="online"><i></i> LIVE GAME</div>
           </div>
 
-          <p class="muted">
-            เมื่อหมดเวลา ระบบจะเข้าสู่ช่วงโหวตอัตโนมัติ
-          </p>
+          <!-- SECRET -->
+          <div id="secretCard" class="secret">
+            <small>YOUR SECRET WORD</small>
+            <h2 id="secretWord" class="secret-word">••••••</h2>
+            <p id="secretHint">จำคำของคุณไว้ให้ดี อย่าให้คนอื่นเห็น!</p>
+          </div>
 
-          <button id="voteStart" class="btn btn-primary">
-            เริ่มโหวตเลย
-          </button>
+          <!-- DISCUSSION -->
+          <div id="discussionSection" class="panel">
+            <div class="eyebrow">DISCUSSION TIME</div>
+            <h2>พูดคุยกันได้เลย!</h2>
+
+            <div id="discussionTimer" class="secret-word">02:00</div>
+
+            <p>เมื่อหมดเวลา ระบบจะเข้าสู่ช่วงโหวตอัตโนมัติ</p>
+
+            <button id="voteStart" class="primary">เริ่มโหวตเลย →</button>
+          </div>
+
+          <!-- VOTING -->
+          <div id="votingSection" class="panel hidden">
+            <div class="eyebrow">VOTING TIME</div>
+            <h2>ใครคือคนที่น่าสงสัย?</h2>
+            <p>เลือกผู้เล่นที่คุณคิดว่าเป็น Undercover</p>
+
+            <div id="votingPlayers" class="vote-targets"></div>
+            <p id="voteStatus" class="muted"></p>
+          </div>
+
+          <!-- RESULT -->
+          <div id="resultSection" class="result hidden">
+            <h2 id="resultTitle">ผลการโหวต</h2>
+            <p id="resultText"></p>
+          </div>
+
+          <!-- REVEAL -->
+          <div id="revealSection" class="panel hidden">
+            <div class="eyebrow">GAME OVER</div>
+            <h2 id="winnerText">ผลการแข่งขัน</h2>
+            <div id="revealPlayers"></div>
+            <button id="playAgain" class="primary">เล่นอีกครั้ง →</button>
+          </div>
+
         </div>
-
-        <!-- VOTING -->
-        <div id="votingSection" class="panel hidden">
-          <div class="eyebrow">VOTING TIME</div>
-
-          <h2>ใครคือคนที่น่าสงสัย?</h2>
-
-          <p class="muted">
-            เลือกผู้เล่นที่คุณคิดว่าเป็น Undercover
-          </p>
-
-          <div id="votingPlayers" class="player-list"></div>
-
-          <p id="voteStatus" class="muted"></p>
-        </div>
-
-        <!-- RESULT -->
-        <div id="resultSection" class="panel hidden">
-          <div class="eyebrow">ROUND RESULT</div>
-
-          <h2 id="resultTitle">ผลการโหวต</h2>
-
-          <p id="resultText"></p>
-        </div>
-
-        <!-- REVEAL -->
-        <div id="revealSection" class="panel hidden">
-          <div class="eyebrow">GAME OVER</div>
-
-          <h2 id="winnerText">ผลการแข่งขัน</h2>
-
-          <div id="revealPlayers" class="player-list"></div>
-
-          <button id="playAgain" class="btn btn-primary">
-            เล่นอีกครั้ง
-          </button>
-        </div>
-
       </section>
 
       <!-- CHAT -->
-      <section id="chatPanel" class="panel chat-panel hidden">
-
-        <div class="section-title">
-          <h3>แชตในห้อง</h3>
-          <span class="muted">CHAT</span>
-        </div>
+      <section id="chatPanel" class="panel room hidden">
+        <div class="eyebrow">ROOM CHAT</div>
+        <h3>แชตในห้อง</h3>
 
         <div id="chatMessages" class="chat-messages"></div>
 
-        <form id="chatForm" class="chat-form">
-          <input
-            id="chatInput"
-            maxlength="300"
-            placeholder="พิมพ์ข้อความ..."
-          >
-
-          <button type="submit" class="btn btn-primary">
-            ส่ง
-          </button>
+        <form id="chatForm">
+          <input id="chatInput" maxlength="300" placeholder="พิมพ์ข้อความ...">
+          <button type="submit" class="primary">ส่ง</button>
         </form>
-
       </section>
 
     </main>
 
-    <div id="toast" class="toast"></div>
+    <footer>
+      UNDERCOVER <span>NEON PARTY GAME</span>
+    </footer>
+
+    <div id="toast" class="notice"></div>
 
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="/app.js"></script>
-
 </body>
 </html>
