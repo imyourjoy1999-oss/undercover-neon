@@ -20,9 +20,9 @@ socket.on("connect_error", () => notice("เชื่อมต่อเซิร
 socket.on("secret", secret => {
   mySecret = secret;
   $("secretCard").classList.remove("hidden");
-  $("roleName").textContent = secret.role === "mrwhite" ? "MR. WHITE" : secret.role.toUpperCase();
-  $("secretWord").textContent = secret.word || "คุณไม่มีคำศัพท์";
-  $("roleHint").textContent = secret.role === "mrwhite" ? "ฟังคำใบ้ให้ดี แล้วพยายามเดาคำลับ" : "จำคำของคุณไว้ และอย่าให้คนอื่นเห็นหน้าจอ";
+ $("roleName").textContent = "คำลับของคุณ";
+$("secretWord").textContent = secret.word || "คุณไม่มีคำศัพท์";
+$("roleHint").textContent = "จำคำของคุณไว้ และอย่าให้คนอื่นเห็นหน้าจอ";
 });
 socket.on("state", state => {
   latestState = state; myRoom = state.code; isHost = state.hostId === socket.id;
