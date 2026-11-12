@@ -145,6 +145,22 @@ io.on("connection", socket => {
 
   ack({ ok: true });
 });
+    socket.on("chatMessage", (raw, ack = () => {}) => {
+  const room = getRoom(socket);
+  if (!room) return ack({ error: "คุณยังไม่ได้เข้าห้อง" });
+
+  const player = room.players.get(socket.id);
+  const message = String(raw || "").trim().slice(0, 300);
+
+  if (!message) return ack({ error: "กรุณาพิมพ์ข้อความ" });
+
+  io.to(room.code).emit("chatMessage", {
+    name: player.name,
+    message
+  });
+
+  ack({ ok: true });
+});
     const room = getRoom(socket);
     if (!room) return;
     if (socket.id !== room.hostId) return ack?.({ error: "เฉพาะเจ้าของห้องเริ่มเกมได้" });
