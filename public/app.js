@@ -330,8 +330,9 @@ $("createRoom")?.addEventListener("click", () => {
 });
 
 // JOIN ROOM
+// JOIN ROOM
 $("joinRoom")?.addEventListener("click", () => {
-  const name = $("playerName").value.trim();
+  const name = $("joinPlayerName").value.trim();
   const code = $("roomCode").value.trim();
 
   if (!name) {
