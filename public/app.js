@@ -84,18 +84,25 @@ socket.on("state", state => {
     $("againBtn").classList.toggle("hidden", !isHost);
   }
 });
-socket.on("roundResult", result => {
-  hasVoted=false;
+socket.on("reveal", result => {
+  const winner = result.winner;
+  const players = result.players;
+
   $("result").classList.remove("hidden");
-  $("result").innerHTML = result.tie ? "<h2>คะแนนเสมอ!</h2><p>เริ่มรอบใหม่ ไม่มีใครถูกคัดออก</p>" :
-    `<h2>ถูกคัดออก: ${escapeHtml(result.eliminated?.name || "ผู้เล่น")}</h2><p>เตรียมเข้าสู่รอบถัดไป</p>`;
-});
-socket.on("reveal", players => {
-  const winner = latestState?.winner;
-  $("result").classList.remove("hidden");
-  $("result").innerHTML = `<h2>${winner==="civilian"?"CIVILIANS WIN!":"UNDERCOVER WINS!"}</h2><p>${winner==="civilian"?"ฝ่ายพลเมืองจับ Undercover ได้ทั้งหมด":"Undercover มีจำนวนเท่ากับหรือมากกว่าฝ่ายอื่น"}</p>`;
+  $("result").innerHTML = `
+    <h2>${winner === "civilian" ? "CIVILIANS WIN!" : "UNDERCOVER WINS!"}</h2>
+    <p>${winner === "civilian"
+      ? "ฝ่ายพลเมืองจับ Undercover ได้ทั้งหมด"
+      : "Undercover มีจำนวนเท่ากับหรือมากกว่าฝ่ายอื่น"}</p>
+  `;
+
   $("reveal").classList.remove("hidden");
-  $("revealList").innerHTML = players.map(p=>`<div class="reveal-row"><span>${escapeHtml(p.name)} ${p.alive?"":"(ถูกคัดออก)"}</span><b>${p.role==="mrwhite"?"MR. WHITE":p.role.toUpperCase()} · ${escapeHtml(p.word||"—")}</b></div>`).join("");
+  $("revealList").innerHTML = players.map(p =>
+    `<div class="reveal-row">
+      <span>${escapeHtml(p.name)} ${p.alive ? "" : "(ถูกคัดออก)"}</span>
+      <b>${p.role === "mrwhite" ? "MR. WHITE" : p.role.toUpperCase()} · ${escapeHtml(p.word || "—")}</b>
+    </div>`
+  ).join("");
 });
 socket.on("reset",()=>{mySecret=null;hasVoted=false;$("secretCard").classList.add("hidden");$("reveal").classList.add("hidden");$("result").classList.add("hidden");});
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
