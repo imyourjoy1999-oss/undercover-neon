@@ -462,7 +462,7 @@ io.on("connection", socket => {
     ack?.({ ok: true });
   });
 
-  socket.on("startVoting", ack => {
+socket.on("startVoting", (_data, ack = () => {}) => {
     const room = getRoom(socket);
 
     if (!room || room.phase !== "discussion") {
