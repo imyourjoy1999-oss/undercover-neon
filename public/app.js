@@ -13,11 +13,16 @@ let hasVoted = false;
 let timerInterval = null;
 let lastResult = null;
 
+
 function showScreen(screenId) {
   document.querySelectorAll(".screen").forEach(screen => {
-    screen.classList.toggle("active", screen.id === screenId);
+    const isActive = screen.id === screenId;
+
+    screen.classList.toggle("active", isActive);
+    screen.classList.toggle("hidden", !isActive);
   });
 }
+
 
 function notice(message = "", elementId = "homeError") {
   const el = $(elementId);
