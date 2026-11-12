@@ -170,17 +170,33 @@
       </section>
 
       <!-- CHAT -->
-      <section id="chatPanel" class="panel room hidden">
-        <div class="eyebrow">ROOM CHAT</div>
-        <h3>แชตในห้อง</h3>
+      
+<!-- FLOATING CHAT -->
+<div id="chatWidget" class="chat-widget">
+  <button id="chatToggle" class="chat-toggle" type="button">
+    <span>💬</span>
+    <span>แชต</span>
+    <span id="chatBadge" class="chat-badge hidden">0</span>
+  </button>
 
-        <div id="chatMessages" class="chat-messages"></div>
+  <section id="chatPanel" class="chat-panel hidden">
+    <div class="chat-header">
+      <div>
+        <strong>💬 ROOM CHAT</strong>
+        <small>คุยกับเพื่อนในห้อง</small>
+      </div>
+      <button id="chatClose" type="button" aria-label="ปิดแชต">✕</button>
+    </div>
 
-        <form id="chatForm">
-          <input id="chatInput" maxlength="300" placeholder="พิมพ์ข้อความ...">
-          <button type="submit" class="primary">ส่ง</button>
-        </form>
-      </section>
+    <div id="chatMessages" class="chat-messages"></div>
+
+    <form id="chatForm">
+      <input id="chatInput" maxlength="300" placeholder="พิมพ์ข้อความ...">
+      <button type="submit" class="primary">ส่ง</button>
+    </form>
+  </section>
+</div>
+
 
     </main>
 
