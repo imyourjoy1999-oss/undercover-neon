@@ -16,6 +16,30 @@ $("copyCode").onclick = async () => {
 };
 $("voteStart").onclick = () => ackAction("startVoting");
 $("againBtn").onclick = () => ackAction("playAgain");
+$("chatForm").addEventListener("submit", event => {
+  event.preventDefault();
+  const input = $("chatInput");
+  const message = input.value.trim();
+  if (!message) return;
+
+  socket.emit("chatMessage", message, result => {
+    if (result?.error) notice(result.error);
+    else input.value = "";
+  });
+});
+
+socket.on("chatMessage", data => {
+  const box = $("chatMessages");
+  const empty = box.querySelector(".muted");
+  if (empty) empty.remove();
+
+  const item = document.createElement("p");
+  const name = document.createElement("strong");
+  name.textContent = data.name + ": ";
+  item.append(name, document.createTextNode(data.message));
+  box.appendChild(item);
+  box.scrollTop = box.scrollHeight;
+});
 socket.on("connect_error", () => notice("เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองรีเฟรชหน้าเว็บ"));
 socket.on("secret", secret => {
   mySecret = secret;
