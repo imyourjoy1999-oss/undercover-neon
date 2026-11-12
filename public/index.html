@@ -32,6 +32,9 @@
       <div class="features"><span>◈ 5–12 PLAYERS</span><span>◈ NO SIGN-UP</span><span>◈ SECRET ROLES</span></div>
     </section>
     <section class="room hidden" id="roomView">
+      <div class="room-top"><div><div class="eyebrow" id="phaseLabel">WAITING ROOM</div><h2 id="roomTitle">ห้องของคุณ</h2></div><button class="copy" id="copyCode">คัดลอกรหัส</button></div>
+      <div class="code-card"><small>ROOM CODE</small><strong id="roomCode">------</strong><span>แชร์รหัสนี้ให้เพื่อนเข้าห้อง</span></div>
+      <div class="room-info"><h3>ผู้เล่น <span id="playerCount">0/12</span></h3><div id="players" class="players"></div></div>
       
 <div class="panel chat-panel">
   <h2>💬 ห้องแชต</h2>
@@ -44,9 +47,6 @@
   </form>
 </div>
 
-      <div class="room-top"><div><div class="eyebrow" id="phaseLabel">WAITING ROOM</div><h2 id="roomTitle">ห้องของคุณ</h2></div><button class="copy" id="copyCode">คัดลอกรหัส</button></div>
-      <div class="code-card"><small>ROOM CODE</small><strong id="roomCode">------</strong><span>แชร์รหัสนี้ให้เพื่อนเข้าห้อง</span></div>
-      <div class="room-info"><h3>ผู้เล่น <span id="playerCount">0/12</span></h3><div id="players" class="players"></div></div>
       <div id="secretCard" class="secret hidden"><small>YOUR SECRET ROLE</small><h2 id="roleName">CIVILIAN</h2><div id="secretWord" class="secret-word">คำลับ</div><p id="roleHint">อย่าให้ใครเห็นหน้าจอของคุณ</p></div>
       <div id="discussion" class="panel hidden"><div class="eyebrow">ROUND <span id="roundNo">1</span></div><h2>พูดคุยและจับผิด</h2><p>ผลัดกันบอกใบ้เกี่ยวกับคำของคุณ โดยอย่าพูดคำตรง ๆ</p><button id="voteStart" class="primary hidden">เริ่มโหวต</button></div>
       <div id="voting" class="panel hidden"><div class="eyebrow">VOTING PHASE</div><h2>ใครคือผู้ต้องสงสัย?</h2><p>เลือกผู้เล่นที่คุณคิดว่าเป็น Undercover</p><div id="voteTargets" class="vote-targets"></div><p id="voteStatus" class="muted"></p></div>
